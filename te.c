@@ -1,4 +1,4 @@
-/* t.c - Small utilty to show network stats.
+/* te.c - Small utilty to show network stats.
 *     
 * Copyright (c) 2016 by Hypsurus <hypsurus@mail.ru>   
 *
@@ -70,7 +70,7 @@ typedef struct {
 
 typedef struct {
   int flag; /* The command line argument flag. */
-} t_t;
+} te_t;
 
 
 /* Print message by type */
@@ -93,7 +93,7 @@ void msg(int type, int quit, char *format, ...) {
 }
 
 /* Return formetted string from a function */
-char *xformat_return(char *format, ...) {
+char *xformate_return(char *format, ...) {
   char *buffer = NULL;
   va_list li;
 
@@ -115,7 +115,7 @@ void unicode_putchar(char *ch, size_t n) {
 }
 
 /* Xalloacte */
-void *t_xalloc(size_t size) {
+void *te_xalloc(size_t size) {
   void *p = calloc(size, 1);
 
   if (!p) exit(0);
@@ -123,7 +123,7 @@ void *t_xalloc(size_t size) {
 }
 
 /* Detect hw address */
-char *t_hwaddr_detect(char *hwaddr) {
+char *te_hwaddr_detect(char *hwaddr) {
   FILE *fp = NULL;
   char prefix[MAX_STR], vendor[MAX_STR];
   char buffer[MAX_STR], nhwaddr[MAX_STR];
@@ -142,7 +142,7 @@ char *t_hwaddr_detect(char *hwaddr) {
     sscanf(buffer, "%s %[^\n]s", prefix, vendor);
     if ( strcmp(prefix, nhwaddr) == 0 ) {
       strtok(nhwaddr, "\n");
-      return xformat_return(vendor);
+      return xformate_return(vendor);
       break;
     }
   }
@@ -153,7 +153,7 @@ char *t_hwaddr_detect(char *hwaddr) {
 }
 
 /* free() **xptr[i] when done. */
-void t_arp_table_get(int col, FILE *table, char **xptr) {
+void te_arp_table_get(int col, FILE *table, char **xptr) {
   char **ptr = xptr;
   char line[MAX_STR];
 
@@ -163,7 +163,7 @@ void t_arp_table_get(int col, FILE *table, char **xptr) {
     
   while (( fgets(line, sizeof(line), table)) != NULL ) {
     if ( isdigit(line[0] )) {
-      *ptr = t_xalloc(18); /* Mac address size+1*/
+      *ptr = te_xalloc(18); /* Mac address size+1*/
       switch(col) {
         case IP_ADDR:
           sscanf(line, "%s", *ptr);
@@ -191,7 +191,7 @@ void t_arp_table_get(int col, FILE *table, char **xptr) {
   fclose(table);
 }
 
-void t_arp_table(t_t *t) {
+void te_arp_table(te_t *t) {
   FILE *table = NULL;
   int i = 0;
   int line_size = 73;
@@ -203,16 +203,16 @@ void t_arp_table(t_t *t) {
   char *dev[MAX_ARP_CACHE];
   char *mac_vendor = NULL;
 
-  t_arp_table_get(IP_ADDR, table, ip);
-  t_arp_table_get(HW_TYPE, table, hw_type);
-  t_arp_table_get(FLAGS, table, flags);
-  t_arp_table_get(MAC_ADDR, table, mac_addr);
-  t_arp_table_get(MASK, table, mask);
-  t_arp_table_get(DEV, table, dev);
+  te_arp_table_get(IP_ADDR, table, ip);
+  te_arp_table_get(HW_TYPE, table, hw_type);
+  te_arp_table_get(FLAGS, table, flags);
+  te_arp_table_get(MAC_ADDR, table, mac_addr);
+  te_arp_table_get(MASK, table, mask);
+  te_arp_table_get(DEV, table, dev);
 
   for ( i = 0; ip[i] != 0; i++ ) {
     if ( t->flag == FLAG_MAC_VENDOR ) {
-      mac_vendor = t_hwaddr_detect(mac_addr[i]);
+      mac_vendor = te_hwaddr_detect(mac_addr[i]);
       if ( mac_vendor == NULL )
         mac_vendor = "Unknown";
       else
@@ -260,7 +260,7 @@ void t_arp_table(t_t *t) {
 }
 
 /* Show network interfaces stats */
-void t_ifconfig(ifconfig_t *ic, t_t *t) {
+void te_ifconfig(ifconfig_t *ic, te_t *t) {
   char path[MAX_STR];
   char *mac_vendor = NULL;
 
@@ -278,7 +278,7 @@ void t_ifconfig(ifconfig_t *ic, t_t *t) {
         fscanf(ic->hwaddr_fp, "%s", ic->hwaddr);
       
       if ( t->flag == FLAG_MAC_VENDOR ) {
-        mac_vendor = t_hwaddr_detect(ic->hwaddr);
+        mac_vendor = te_hwaddr_detect(ic->hwaddr);
         if ( mac_vendor == NULL )
           mac_vendor = "Unknown";
       } 
@@ -296,13 +296,13 @@ void t_ifconfig(ifconfig_t *ic, t_t *t) {
   freeifaddrs(ic->addrs);
 }
 
-void t_print_version(void) {
+void te_printe_version(void) {
   printf("%s//t%s %s%s%s- A small utility to view network stats.\n",YEL,END,
     GRN,VERSION,END);
   printf("%s//Writt by @Hypsurus (hypsurus@mail.ru)%s\n", CYN,END);
 }
 
-void t_print_usage(char *file_name) {
+void te_printe_usage(char *file_name) {
   printf("Usage: %s [OPTIONS] ...\n", file_name);
   printf("\nOptions:\n");
   printf("\t-a, --arp      -   Show the ARP table.\n");
@@ -315,10 +315,10 @@ void t_print_usage(char *file_name) {
 
 int main(int argc, char **argv) {
   ifconfig_t ic;
-  t_t t;
+  te_t t;
 
   int opt = 0;
-  int opt_index = 0;
+  int opte_index = 0;
   static struct option long_opts[] = {
     {"help", no_argument, 0, 'h'},
     {"arp", no_argument, 0, 'a'},
@@ -329,30 +329,30 @@ int main(int argc, char **argv) {
   };
 
   while (( opt = getopt_long(argc, argv, "mhaiv", 
-    long_opts, &opt_index)) != -1 ) {
+    long_opts, &opte_index)) != -1 ) {
     
     switch(opt) {
       case 'm':
         t.flag = FLAG_MAC_VENDOR;
         break;
       case 'a':
-        t_arp_table(&t);
+        te_arp_table(&t);
         break;
       case 'i':
-        t_ifconfig(&ic, &t);
+        te_ifconfig(&ic, &t);
         break;
       case 'v':
-        t_print_version();
+        te_printe_version();
         break;
       case 'h':
-        t_print_usage(argv[0]);
+        te_printe_usage(argv[0]);
       default:
         break;
     }
   }
   
   if ( argc < 2 ) 
-    t_ifconfig(&ic, &t);
+    te_ifconfig(&ic, &t);
   
   return 0; 
 }
