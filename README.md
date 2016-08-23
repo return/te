@@ -23,15 +23,12 @@ TODO:
 - [x] Show arp table.
 - [x] Show Interface ip address and MAC.
 
-etc..
-
-
 Platforms
 ===========
 
-* Linux (any)
-* Mac ???
-* BSD
+- [x] Linux
+- [ ] Mac
+- [ ] BSD
 
 Install
 ---------
