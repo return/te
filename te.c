@@ -56,7 +56,6 @@
 #define UNICODE_X   "x"
 
 enum {IP_ADDR, HW_TYPE, FLAGS, MAC_ADDR, MASK, DEV};
-enum {FLAG_MAC_VENDOR=1, FLAG_ARP_TABLE};
 enum {ERROR, INFO};
 enum {FALSE, TRUE};
 
@@ -211,20 +210,16 @@ void te_arp_table(te_t *t) {
   te_arp_table_get(DEV, table, dev);
 
   for ( i = 0; ip[i] != 0; i++ ) {
-    if ( t->flag == FLAG_MAC_VENDOR ) {
-      mac_vendor = te_hwaddr_detect(mac_addr[i]);
-      if ( mac_vendor == NULL )
-        mac_vendor = "Unknown";
-      else
-        if ( i == 0 )
-          line_size += strlen(mac_vendor);
+    mac_vendor = te_hwaddr_detect(mac_addr[i]);
+    if ( mac_vendor == NULL )
+      mac_vendor = "Unknown";
+    else {
+      if ( i == 0 )
+        line_size += strlen(mac_vendor);
     }
 
     if ( i == 0 ) {
-      if ( t->flag == FLAG_MAC_VENDOR )
-        printf("  Address \tHWtype \tFlags \tHWAddr \t\t\tMask \tIface \t\tVendor\n");
-      else
-        printf("  Address \tHWtype \tFlags \tHWAddr \t\t\tMask \tIface\n");
+      printf("  Address \tHWtype \tFlags \tHWAddr \t\t\tMask \tIface \t\tVendor\n");
     }
 
     /* Incomplete ARP request 0x0 */
@@ -276,13 +271,10 @@ void te_ifconfig(ifconfig_t *ic, te_t *t) {
         strcat(ic->hwaddr, "00:00:00:00:00:00");
       else
         fscanf(ic->hwaddr_fp, "%s", ic->hwaddr);
-      
-      if ( t->flag == FLAG_MAC_VENDOR ) {
-        mac_vendor = te_hwaddr_detect(ic->hwaddr);
-        if ( mac_vendor == NULL )
-          mac_vendor = "Unknown";
-      } 
-
+    
+      mac_vendor = te_hwaddr_detect(ic->hwaddr);
+      if ( mac_vendor == NULL )
+        mac_vendor = "Unknown";
       printf("%s%s%s %s%s%s: \n  inet: %s%s%s \n  ether: %s%s %s%s\n", GRN,UNICODE_CHECK,END,
       YEL, ic->addrs->ifa_name, END, 
       BLU, ic->ip, END,
@@ -299,7 +291,7 @@ void te_ifconfig(ifconfig_t *ic, te_t *t) {
 void te_printe_version(void) {
   printf("%s//t%s %s%s%s- A small utility to view network stats.\n",YEL,END,
     GRN,VERSION,END);
-  printf("%s//Writt by @Hypsurus (hypsurus@mail.ru)%s\n", CYN,END);
+  printf("%s//Written by @Hypsurus (hypsurus@mail.ru)%s\n", CYN,END);
 }
 
 void te_printe_usage(char *file_name) {
@@ -322,19 +314,15 @@ int main(int argc, char **argv) {
   static struct option long_opts[] = {
     {"help", no_argument, 0, 'h'},
     {"arp", no_argument, 0, 'a'},
-    {"mac-vendor", no_argument, 0, 'm'},
     {"ifconfig", no_argument, 0, 'i'},
     {"version", no_argument, 0, 'v'},
     {0,0,0,0}
   };
 
-  while (( opt = getopt_long(argc, argv, "mhaiv", 
+  while (( opt = getopt_long(argc, argv, "haiv", 
     long_opts, &opte_index)) != -1 ) {
     
     switch(opt) {
-      case 'm':
-        t.flag = FLAG_MAC_VENDOR;
-        break;
       case 'a':
         te_arp_table(&t);
         break;
